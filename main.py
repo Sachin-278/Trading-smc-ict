@@ -243,7 +243,12 @@ def get_live_data(symbol):
                     avg = df[price_col].tail(50).mean()
                     return price, avg
         
-        # Fallback to yfinance
+        # Metal/Commodity Check
+        metal_list = ['GOLD', 'XAUUSD', 'SILVER', 'XAGUSD', 'PLATINUM', 'XPTUSD', 'COPPER', 'XCUUSD', 'WTI_CRUDE', 'BRENT_CRUDE']
+        if symbol.upper() in metal_list:
+            return None, None
+            
+        # Fallback to yfinance only for non-metal assets
         yahoo_symbol = yahoo_mapping.get(symbol, symbol)
         ticker = yf.Ticker(yahoo_symbol)
         hist = ticker.history(period='1y')
@@ -858,24 +863,24 @@ with tab7:
                     st.sidebar.warning(f"⚠ Cache read error: {e}")
 
             if chart_hist.empty:
-                if selected_tf_label in ["1min", "3min", "5min"]:
-                    yf_period = "5d"
-                elif selected_tf_label in ["15min", "30min", "1Hr", "4Hr"]:
-                    # Yahoo Finance 30m max lookback = 60 calendar days.
-                    import datetime as _dt
-                    _end   = _dt.datetime.now()
-                    _start = _end - _dt.timedelta(days=58)
-                    chart_hist = yf.Ticker(yf_symbol).history(
-                        start=_start.strftime("%Y-%m-%d"),
-                        end=_end.strftime("%Y-%m-%d"),
-                        interval=yf_interval
-                    )
-                    if chart_hist.empty:
-                        st.error(f"⚠️ Yahoo Finance returned no {yf_interval} data for {yf_symbol}. ")
-                        st.stop()
-
-                if selected_tf_label not in ["15min", "30min", "1Hr", "4Hr"]:
-                    chart_hist = yf.Ticker(yf_symbol).history(period=yf_period, interval=yf_interval)
+                # Only use yfinance fallback for US Stocks
+                if selected_category == "🇺🇸 US Stocks":
+                    if selected_tf_label in ["1min", "3min", "5min"]:
+                        yf_period = "5d"
+                    elif selected_tf_label in ["15min", "30min", "1Hr", "4Hr"]:
+                        import datetime as _dt
+                        _end   = _dt.datetime.now()
+                        _start = _end - _dt.timedelta(days=58)
+                        chart_hist = yf.Ticker(yf_symbol).history(
+                            start=_start.strftime("%Y-%m-%d"),
+                            end=_end.strftime("%Y-%m-%d"),
+                            interval=yf_interval
+                        )
+                    else:
+                        chart_hist = yf.Ticker(yf_symbol).history(period=yf_period, interval=yf_interval)
+                else:
+                    st.error(f"⚠️ TradingView data is not available for {target_column} at {selected_tf_label} resolution. Please refresh.")
+                    st.stop()
 
             if chart_hist.empty:
                 st.error(f"⚠️ Yahoo Finance returned no data for {selected_tf_label}. Try a different timeframe.")

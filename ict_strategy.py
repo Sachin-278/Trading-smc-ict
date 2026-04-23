@@ -165,22 +165,23 @@ class ICTStrategy:
                 except:
                     pass
 
-                # Fallback to yfinance if no cache
+            if hist.empty:
+                # Disable yfinance fallback for metals/commodities as it is currently unstable
+                metal_list = ['GOLD', 'XAUUSD', 'SILVER', 'XAGUSD', 'PLATINUM', 'XPTUSD', 'COPPER', 'XCUUSD']
+                if symbol.upper() in metal_list:
+                    return {"error": f"TradingView data not found in cache for {symbol}. Try reloading."}
+
+                # Fallback to yfinance only for Stocks/Crypto
                 yf_symbol = symbol
-                # Handle internal names and common symbols for yfinance
-                metal_map = {
-                    'GOLD': 'XAUUSD=X', 'XAUUSD': 'XAUUSD=X',
-                    'SILVER': 'XAGUSD=X', 'XAGUSD': 'XAGUSD=X',
-                    'PLATINUM': 'XPTUSD=X', 'XPTUSD': 'XPTUSD=X',
-                    'COPPER': 'HG=F', 'XCUUSD': 'HG=F',
-                    'BTC': 'BTC-USD'
-                }
-                yf_symbol = metal_map.get(symbol, symbol)
+                if symbol == 'BTC': yf_symbol = 'BTC-USD'
                 
-                ticker = yf.Ticker(yf_symbol)
-                hist = ticker.history(period="5d", interval="1m")
-                if not hist.empty:
-                    hist.index = hist.index.tz_convert('America/New_York')
+                try:
+                    ticker = yf.Ticker(yf_symbol)
+                    hist = ticker.history(period="5d", interval="1m")
+                    if not hist.empty:
+                        hist.index = hist.index.tz_convert('America/New_York')
+                except:
+                    pass
             
             if hist.empty:
                 return {"error": "No 1-minute data available for this symbol."}
