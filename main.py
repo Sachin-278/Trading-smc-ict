@@ -78,11 +78,41 @@ def refresh_tv_cache(symbol, interval_str):
     if needs_update:
         try:
             tv = get_tv_connection()
-            # Mapping logic similar to collector
+            # Expanded mapping for all metals, commodities and forex
             mapping = {
-                'XAUUSD': ('OANDA', 'XAUUSD'), 'XAGUSD': ('OANDA', 'XAGUSD'),
-                'BTC': ('BINANCE', 'BTCUSDT'), 'EURUSD': ('FX_IDC', 'EURUSD'),
-                'WTI_CRUDE': ('NYMEX', 'CL1!'), 'RELIANCE': ('NSE', 'RELIANCE')
+                # Metals (Internal & Display names)
+                'XAUUSD': ('OANDA', 'XAUUSD'), 'GOLD': ('OANDA', 'XAUUSD'),
+                'XAGUSD': ('OANDA', 'XAGUSD'), 'SILVER': ('OANDA', 'XAGUSD'),
+                'XPTUSD': ('OANDA', 'XPTUSD'), 'PLATINUM': ('OANDA', 'XPTUSD'),
+                'XCUUSD': ('COMEX', 'HG1!'), 'COPPER': ('COMEX', 'HG1!'),
+                
+                # US Stocks
+                'AMZN': ('NASDAQ', 'AMZN'), 'AAPL': ('NASDAQ', 'AAPL'),
+                'MSFT': ('NASDAQ', 'MSFT'), 'TSLA': ('NASDAQ', 'TSLA'),
+                'NVDA': ('NASDAQ', 'NVDA'), 'GOOGL': ('NASDAQ', 'GOOGL'),
+                'NFLX': ('NASDAQ', 'NFLX'), 'DPZ': ('NYSE', 'DPZ'),
+
+                # Forex
+                'EURUSD': ('FX_IDC', 'EURUSD'), 'GBPUSD': ('FX_IDC', 'GBPUSD'),
+                'USDJPY': ('FX_IDC', 'USDJPY'), 'USDCHF': ('FX_IDC', 'USDCHF'),
+                'AUDUSD': ('FX_IDC', 'AUDUSD'), 'USDCAD': ('FX_IDC', 'USDCAD'),
+                'NZDUSD': ('FX_IDC', 'NZDUSD'), 'EURJPY': ('FX_IDC', 'EURJPY'),
+                'GBPJPY': ('FX_IDC', 'GBPJPY'),
+
+                # Crypto
+                'BTC': ('BINANCE', 'BTCUSDT'), 'ETH': ('BINANCE', 'ETHUSDT'),
+                'BNB': ('BINANCE', 'BNBUSDT'), 'ADA': ('BINANCE', 'ADAUSDT'),
+                'SOL': ('BINANCE', 'SOLUSDT'),
+
+                # Commodities
+                'WTI_CRUDE': ('NYMEX', 'CL1!'), 'BRENT_CRUDE': ('ICE', 'BRN1!'),
+                
+                # Indian Stocks (NSE)
+                'RELIANCE': ('NSE', 'RELIANCE'), 'TCS': ('NSE', 'TCS'),
+                'HDFCBANK': ('NSE', 'HDFCBANK'), 'ICICIBANK': ('NSE', 'ICICIBANK'),
+                'INFY': ('NSE', 'INFY'), 'BAJFINANCE': ('NSE', 'BAJFINANCE'),
+                'HINDUNILVR': ('NSE', 'HINDUNILVR'), 'ITC': ('NSE', 'ITC'),
+                'KOTAKBANK': ('NSE', 'KOTAKBANK'), 'LT': ('NSE', 'LT')
             }
             
             exchange, tv_symbol = mapping.get(symbol, ('NASDAQ', symbol))
