@@ -122,8 +122,11 @@ def refresh_tv_cache(symbol, interval_str):
                 '15m': Interval.in_15_minute, '1h': Interval.in_1_hour, '1d': Interval.in_daily
             }
             
+            # Increase n_bars for 1m to ensure we reach midnight
+            n_bars = 2000 if interval_str == '1m' else 500
+            
             df = tv.get_hist(symbol=tv_symbol, exchange=exchange, 
-                             interval=tf_tv_map.get(interval_str, Interval.in_1_hour), n_bars=500)
+                             interval=tf_tv_map.get(interval_str, Interval.in_1_hour), n_bars=n_bars)
             
             if df is not None and not df.empty:
                 df.to_csv(cache_file)
